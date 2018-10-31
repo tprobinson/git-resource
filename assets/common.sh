@@ -1,5 +1,8 @@
-export TMPDIR=${TMPDIR:-/tmp}
-export GIT_CRYPT_KEY_PATH=~/git-crypt.key
+#!/bin/sh
+export TMPDIR="${TMPDIR:-/tmp}"
+export GIT_CRYPT_KEY_PATH="$HOME/git-crypt.key"
+mkdir "$HOME/.ssh" 2>&1 || true
+chmod 0700 "$HOME/.ssh"
 
 load_pubkey() {
   local private_key_path=$TMPDIR/git-resource-private-key
@@ -9,10 +12,10 @@ load_pubkey() {
   if [ -s $private_key_path ]; then
     chmod 0600 $private_key_path
 
-    eval $(ssh-agent) >/dev/null 2>&1
-    trap "kill $SSH_AGENT_PID" 0
+    eval "$(ssh-agent)" >/dev/null 2>&1
+    trap 'kill $SSH_AGENT_PID' 0
 
-    SSH_ASKPASS=$(dirname $0)/askpass.sh DISPLAY= ssh-add $private_key_path >/dev/null
+    SSH_ASKPASS=$(dirname $0)/askpass.sh DISPLAY='' ssh-add $private_key_path >/dev/null
 
     mkdir -p ~/.ssh
     cat > ~/.ssh/config <<EOF
@@ -139,7 +142,7 @@ configure_credentials() {
   local password=$(jq -r '.source.password // ""' < $1)
 
   rm -f $HOME/.netrc
-  if [ "$username" != "" -a "$password" != "" ]; then
+  if [ "$username" != "" ] && [ "$password" != "" ]; then
     echo "default login $username password $password" > $HOME/.netrc
   fi
 }
