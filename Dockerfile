@@ -5,7 +5,7 @@ WORKDIR /root
 RUN git clone https://github.com/proxytunnel/proxytunnel.git
 
 WORKDIR /root/proxytunnel
-RUN make
+RUN git checkout 1cb544cdd5096445636a82bec45d555d51252b9d && make -j2
 
 FROM alpine:edge AS resource
 
