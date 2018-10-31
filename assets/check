@@ -64,6 +64,17 @@ else
   cd $destination
 fi
 
+# Determine whether the last ref is reachable from the desired HEAD;
+# if not, clear the last ref so that builds can continue.
+# This can happen if e.g. the pipeline is switched from one branch to another
+set +e
+git merge-base "$ref" HEAD
+is_history_continuous=$?
+set -e
+if [ $is_history_continuous -ne 0 ]; then
+  ref=''
+fi
+
 if [ -n "$ref" ] && git cat-file -e "$ref"; then
   init_commit=$(git rev-list --max-parents=0 HEAD)
   if [ "${ref}" = "${init_commit}" ]; then
