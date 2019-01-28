@@ -17,7 +17,7 @@ load_pubkey() {
 
     SSH_ASKPASS=$(dirname $0)/askpass.sh DISPLAY='' ssh-add $private_key_path >/dev/null
 
-    mkdir -p ~/.ssh
+    mkdir -p ~/.ssh 1>/dev/null 2>/dev/null || true
     cat > ~/.ssh/config <<EOF
 StrictHostKeyChecking no
 LogLevel quiet
@@ -27,6 +27,7 @@ EOF
 }
 
 configure_https_tunnel() {
+  mkdir -p ~/.ssh 1>/dev/null 2>/dev/null || true
   tunnel=$(jq -r '.source.https_tunnel // empty' < $1)
 
   if [ ! -z "$tunnel" ]; then
